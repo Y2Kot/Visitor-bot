@@ -7,12 +7,21 @@ import ru.kudryavtsev.domain.utils.CacheUtils.set
 import kotlinx.coroutines.flow.onEach
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import ru.kudryavtsev.domain.model.*
+import ru.kudryavtsev.domain.model.BotCommand
+import ru.kudryavtsev.domain.model.BotState
+import ru.kudryavtsev.domain.model.Discipline
+import ru.kudryavtsev.domain.model.Group
+import ru.kudryavtsev.domain.model.Message
+import ru.kudryavtsev.domain.model.RegisteringStep
+import ru.kudryavtsev.domain.model.Student
+import ru.kudryavtsev.domain.model.Subject
+import ru.kudryavtsev.domain.model.Visit
+import ru.kudryavtsev.domain.model.VisitParserException
+import ru.kudryavtsev.domain.repository.AdministratorRepository
 import ru.kudryavtsev.domain.repository.BotRepository
 import ru.kudryavtsev.domain.repository.StudentsRepository
 import ru.kudryavtsev.domain.repository.VisitRepository
 import ru.kudryavtsev.domain.utils.CacheUtils.getOrPut
-import ru.kudryavtsev.domain.utils.StringUtils.EMPTY
 import java.time.Duration
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -21,6 +30,7 @@ class BotController : KoinComponent {
     private val botRepository: BotRepository by inject()
     private val studentsRepository: StudentsRepository by inject()
     private val visitRepository: VisitRepository by inject()
+    private val administratorRepository: AdministratorRepository by inject()
 
     val messages = botRepository.receiveMessages().onEach { message: Message ->
         if (message.isCommand) {
@@ -84,6 +94,10 @@ class BotController : KoinComponent {
     }
 
     private fun Message.uploadImage() {
+        if (!administratorRepository.isAdministrator(userInfo.userId)) {
+            botRepository.sendMessage(this.copy(text = NOT_ENOUGH_PERMISSIONS))
+            return
+        }
         usersCache[userInfo.userId] = BotState.UploadingImage
         botRepository.sendMessage(this.copy(text = UPLOAD_IMAGE))
     }
@@ -106,7 +120,7 @@ class BotController : KoinComponent {
             student = Student(
                 userId = userInfo.userId,
                 chatId = userInfo.chatId,
-                name = String.EMPTY,
+                name = EMPTY_STRING,
                 group = Group.UNDEFINED
             )
         )
@@ -291,5 +305,9 @@ class BotController : KoinComponent {
         private const val VISIT_REGISTER_SUCCEED = "Посещение получено!"
 
         private const val UPLOAD_IMAGE = "Загрузите файл:"
+
+        private const val EMPTY_STRING = ""
+
+        private const val NOT_ENOUGH_PERMISSIONS = "У вас недостаточно прав для выполнения операции!"
     }
 }

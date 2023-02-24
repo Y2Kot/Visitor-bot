@@ -15,7 +15,7 @@ val localProperties = Properties().apply {
 }
 
 group = "ru.kudryavtsev"
-version = "1.2"
+version = "1.3"
 
 repositories {
     maven(url = "https://maven.nexus.qoollo.com/")
