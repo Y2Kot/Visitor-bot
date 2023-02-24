@@ -8,7 +8,7 @@ import org.jetbrains.exposed.sql.javatime.date
 import java.time.LocalDate
 import java.util.UUID
 
-object Visits: UUIDTable("visits") {
+object Visits : UUIDTable("visits") {
     val studentId = uuid("student_id")
     val date = date("date")
     val subject = integer("subject")
@@ -16,11 +16,12 @@ object Visits: UUIDTable("visits") {
     val isPublished = bool("is_published")
 }
 
-class VisitEntity(id: EntityID<UUID>): UUIDEntity(id) {
-    companion object: UUIDEntityClass<ru.kudryavtsev.datasource.local.entity.VisitEntity>(ru.kudryavtsev.datasource.local.entity.Visits)
-    var studentId: UUID by ru.kudryavtsev.datasource.local.entity.Visits.studentId
-    var date: LocalDate by ru.kudryavtsev.datasource.local.entity.Visits.date
-    var subject: Int by ru.kudryavtsev.datasource.local.entity.Visits.subject
-    var numberOnImage: Int by ru.kudryavtsev.datasource.local.entity.Visits.numberOnImage
-    var isPublished: Boolean by ru.kudryavtsev.datasource.local.entity.Visits.isPublished
+class VisitEntity(id: EntityID<UUID>) : UUIDEntity(id) {
+    companion object : UUIDEntityClass<VisitEntity>(Visits)
+
+    var studentId: UUID by Visits.studentId
+    var date: LocalDate by Visits.date
+    var subject: Int by Visits.subject
+    var numberOnImage: Int by Visits.numberOnImage
+    var isPublished: Boolean by Visits.isPublished
 }

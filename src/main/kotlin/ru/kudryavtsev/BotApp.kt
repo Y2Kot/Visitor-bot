@@ -15,6 +15,7 @@ import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.context.startKoin
+import ru.kudryavtsev.datasource.local.entity.Administrators
 import ru.kudryavtsev.datasource.local.entity.Students
 import ru.kudryavtsev.datasource.local.entity.Visits
 import ru.kudryavtsev.domain.BotController
@@ -48,6 +49,7 @@ private fun initializeDb(context: AppContext) {
         addLogger(StdOutSqlLogger)
         SchemaUtils.create(Visits)
         SchemaUtils.create(Students)
+        SchemaUtils.create(Administrators)
     }
 }
 
