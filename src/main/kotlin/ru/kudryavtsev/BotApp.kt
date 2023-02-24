@@ -15,30 +15,39 @@ import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.context.startKoin
+import org.koin.core.logger.Level
+import org.koin.core.logger.PrintLogger
 import ru.kudryavtsev.datasource.local.entity.Administrators
 import ru.kudryavtsev.datasource.local.entity.Students
 import ru.kudryavtsev.datasource.local.entity.Visits
-import ru.kudryavtsev.domain.BotController
+import ru.kudryavtsev.domain.BotProcessor
 import ru.kudryavtsev.domain.di.domainModule
 import ru.kudryavtsev.domain.di.remoteModule
 import ru.kudryavtsev.domain.model.AppContext
 import java.sql.Connection
 
 suspend fun main() {
+    val scope = CoroutineScope(Dispatchers.Default)
     val currentContext = AppContext.getEnvironment()
+
     initializeLogger(currentContext)
+
     logi(tag = "BotApp") {
         "selected context: ${currentContext.javaClass.simpleName}\n" +
                 "volume path: ${currentContext.volumePath}\n" +
                 "db path: ${currentContext.dbPath}"
     }
+
     initializeDb(currentContext)
-    startKoin {
+
+    val koin = startKoin {
+        logger(PrintLogger(Level.INFO))
         modules(domainModule, remoteModule)
     }
-    val scope = CoroutineScope(Dispatchers.Default)
-    val botController = BotController()
-    botController.messages.launchIn(scope)
+
+    val botProcessor = koin.koin.get<BotProcessor>()
+    botProcessor.messages.launchIn(scope)
+
     awaitCancellation()
 }
 
@@ -47,9 +56,7 @@ private fun initializeDb(context: AppContext) {
     TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
     transaction {
         addLogger(StdOutSqlLogger)
-        SchemaUtils.create(Visits)
-        SchemaUtils.create(Students)
-        SchemaUtils.create(Administrators)
+        SchemaUtils.create(Visits, Students, Administrators)
     }
 }
 
