@@ -5,7 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import ru.kudryavtsev.domain.model.StudentState
 import java.time.Duration
 
-class StudentStateService(
+class StudentStateService (
     initialCapacity: Int = STUDENTS_INITIAL,
     limit: Long = STUDENTS_LIMIT,
     keepInCacheDuration: Duration = Duration.ofDays(STUDENT_KEEP_IN_CACHE)
