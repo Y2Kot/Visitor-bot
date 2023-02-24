@@ -1,50 +1,49 @@
 package ru.kudryavtsev.domain
 
-import com.github.benmanes.caffeine.cache.Cache
-import com.github.benmanes.caffeine.cache.Caffeine
 import com.qoollo.logger.logw
-import ru.kudryavtsev.domain.utils.CacheUtils.set
 import kotlinx.coroutines.flow.onEach
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import ru.kudryavtsev.domain.model.BotCommand
-import ru.kudryavtsev.domain.model.BotState
 import ru.kudryavtsev.domain.model.Discipline
 import ru.kudryavtsev.domain.model.Group
 import ru.kudryavtsev.domain.model.Message
 import ru.kudryavtsev.domain.model.RegisteringStep
 import ru.kudryavtsev.domain.model.Student
+import ru.kudryavtsev.domain.model.StudentState
 import ru.kudryavtsev.domain.model.Subject
 import ru.kudryavtsev.domain.model.Visit
-import ru.kudryavtsev.domain.model.VisitParserException
-import ru.kudryavtsev.domain.repository.AdministratorRepository
-import ru.kudryavtsev.domain.repository.BotRepository
-import ru.kudryavtsev.domain.repository.StudentsRepository
-import ru.kudryavtsev.domain.repository.VisitRepository
-import ru.kudryavtsev.domain.utils.CacheUtils.getOrPut
-import java.time.Duration
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import ru.kudryavtsev.domain.usecase.CheckAdminPermissionUseCase
+import ru.kudryavtsev.domain.usecase.GetAllStudentsUseCase
+import ru.kudryavtsev.domain.usecase.GetOrInitStudentStateUseCase
+import ru.kudryavtsev.domain.usecase.GetStudentUseCase
+import ru.kudryavtsev.domain.usecase.ReceiveMessagesUseCase
+import ru.kudryavtsev.domain.usecase.RegisterStudentUseCase
+import ru.kudryavtsev.domain.usecase.RegisterVisitUseCase
+import ru.kudryavtsev.domain.usecase.SendMessageUseCase
+import ru.kudryavtsev.domain.usecase.UpdateStudentStateUseCase
+import ru.kudryavtsev.domain.util.answerParser
 
-class BotController : KoinComponent {
-    private val botRepository: BotRepository by inject()
-    private val studentsRepository: StudentsRepository by inject()
-    private val visitRepository: VisitRepository by inject()
-    private val administratorRepository: AdministratorRepository by inject()
+class BotController(
+    private val sendMessage: SendMessageUseCase,
+    private val getOrInitStudentState: GetOrInitStudentStateUseCase,
+    private val updateStudentState: UpdateStudentStateUseCase,
+    private val getAllStudents: GetAllStudentsUseCase,
+    private val registerStudent: RegisterStudentUseCase,
+    private val getStudent: GetStudentUseCase,
+    private val checkAdminPermission: CheckAdminPermissionUseCase,
+    private val registerVisit: RegisterVisitUseCase,
+    receiveMessages: ReceiveMessagesUseCase
+) : KoinComponent {
+//    private val visitRepository: VisitRepository by inject()
+//    private val administratorRepository: AdministratorRepository by inject()
 
-    val messages = botRepository.receiveMessages().onEach { message: Message ->
+    val messages = receiveMessages().onEach { message: Message ->
         if (message.isCommand) {
             executeCommand(message)
         } else {
             processText(message)
         }
     }
-
-    private val usersCache: Cache<Long, BotState> = Caffeine.newBuilder()
-        .maximumSize(STUDENTS_LIMIT)
-        .initialCapacity(STUDENTS_INITIAL)
-        .expireAfterWrite(Duration.ofDays(STUDENT_KEEP_IN_CACHE))
-        .build()
 
     private fun executeCommand(message: Message) {
         message.text ?: return
@@ -60,63 +59,63 @@ class BotController : KoinComponent {
     }
 
     private fun processText(message: Message) {
-        when (val userState = usersCache.getOrPut(message.userInfo.userId) { BotState.Undefined }) {
-            is BotState.AddingVisit -> userState.process(message)
-            BotState.Registered -> process(message)
-            is BotState.Registering -> userState.process(message)
-            BotState.UploadingImage -> processUpload(message)
-            BotState.Undefined -> process(message)
+        when (val userState = getOrInitStudentState[message.userInfo.userId]) {
+            is StudentState.AddingVisit -> userState.process(message)
+            StudentState.Registered -> process(message)
+            is StudentState.Registering -> userState.process(message)
+            StudentState.UploadingImage -> processUpload(message)
+            StudentState.Undefined -> process(message)
         }
     }
 
     private fun Message.visitOp() {
-        usersCache[userInfo.userId] = BotState.AddingVisit(Discipline.Op)
-        botRepository.sendMessage(this.copy(text = REGISTER_VISIT_INTRO))
+        updateStudentState[userInfo.userId] = StudentState.AddingVisit(Discipline.Op)
+        sendMessage(this.copy(text = REGISTER_VISIT_INTRO))
     }
 
     private fun Message.visitOop() {
-        usersCache[userInfo.userId] = BotState.AddingVisit(Discipline.Oop)
-        botRepository.sendMessage(this.copy(text = REGISTER_VISIT_INTRO))
+        updateStudentState[userInfo.userId] = StudentState.AddingVisit(Discipline.Oop)
+        sendMessage(this.copy(text = REGISTER_VISIT_INTRO))
     }
 
     private fun Message.sendHelpMessage() {
-        botRepository.sendMessage(this.copy(text = HELP_MESSAGE))
+        sendMessage(this.copy(text = HELP_MESSAGE))
     }
 
     private fun Message.sendInfoMessage() {
-        val student = studentsRepository.getUserById(this.userInfo.userId)
+        val student = getStudent[this.userInfo.userId]
         val text = if (student == null) {
             UNKNOWN_USER
         } else {
             String.format(USER_INFO, student.name, student.group.ordinal + 1)
         }
-        botRepository.sendMessage(this.copy(text = text))
+        sendMessage(this.copy(text = text))
     }
 
     private fun Message.uploadImage() {
-        if (!administratorRepository.isAdministrator(userInfo.userId)) {
-            botRepository.sendMessage(this.copy(text = NOT_ENOUGH_PERMISSIONS))
+        if (!checkAdminPermission(userInfo.userId)) {
+            sendMessage(this.copy(text = NOT_ENOUGH_PERMISSIONS))
             return
         }
-        usersCache[userInfo.userId] = BotState.UploadingImage
-        botRepository.sendMessage(this.copy(text = UPLOAD_IMAGE))
+        updateStudentState[userInfo.userId] = StudentState.UploadingImage
+        sendMessage(this.copy(text = UPLOAD_IMAGE))
     }
 
     private fun Message.sendUndefinedMessage() {
-        botRepository.sendMessage(this.copy(text = UNDEFINED))
+        sendMessage(this.copy(text = UNDEFINED))
     }
 
     private fun Message.registerUser() {
-        val isExist = studentsRepository.isStudentExist(userInfo.userId)
-        if (isExist) {
+        val student = getStudent[userInfo.userId]
+        if (student != null) {
             val newMessage = Message(
                 userInfo = userInfo,
                 text = STUDENT_ALREADY_EXIST
             )
-            botRepository.sendMessage(newMessage)
+            sendMessage(newMessage)
             return
         }
-        usersCache[userInfo.userId] = BotState.Registering(
+        updateStudentState[userInfo.userId] = StudentState.Registering(
             student = Student(
                 userId = userInfo.userId,
                 chatId = userInfo.chatId,
@@ -128,19 +127,18 @@ class BotController : KoinComponent {
             userInfo = userInfo,
             text = REGISTERING_FIRST_MESSAGE
         )
-        botRepository.sendMessage(newMessage)
+        sendMessage(newMessage)
     }
 
     private fun process(message: Message) {
         val newMessage = message.copy(text = UNDEFINED)
-        botRepository.sendMessage(newMessage)
+        sendMessage(newMessage)
     }
 
     private fun processUpload(message: Message) {
         message.text ?: return
-        val students = studentsRepository.getAllStudents()
-        for (student in students) {
-            botRepository.sendMessage(
+        getAllStudents().forEach { student ->
+            sendMessage(
                 Message(
                     userInfo = message.userInfo.copy(
                         userId = student.userId,
@@ -150,31 +148,32 @@ class BotController : KoinComponent {
                 )
             )
         }
-        usersCache[message.userInfo.userId] = BotState.Registered
+        updateStudentState[message.userInfo.userId] = StudentState.Registered
     }
 
-    private fun BotState.Registering.process(message: Message) {
+    private fun StudentState.Registering.process(message: Message) {
         when (registeringStep) {
             RegisteringStep.First -> processFirstStep(message)
             RegisteringStep.Second -> processSecondStep(message)
         }
     }
 
-    private fun BotState.Registering.processFirstStep(message: Message) {
+    private fun StudentState.Registering.processFirstStep(message: Message) {
         val userName = message.text ?: TODO("Текст сообщения отсутствует")
-        usersCache[message.userInfo.userId] = this.copy(
+        updateStudentState[message.userInfo.userId] = this.copy(
             registeringStep = RegisteringStep.Second,
             student = student.copy(name = userName)
         )
-        val newMessage = Message(
-            userInfo = message.userInfo,
-            replyId = message.messageId,
-            text = REGISTERING_SECOND_MESSAGE
+        sendMessage(
+            Message(
+                userInfo = message.userInfo,
+                replyId = message.messageId,
+                text = REGISTERING_SECOND_MESSAGE
+            )
         )
-        botRepository.sendMessage(newMessage)
     }
 
-    private fun BotState.Registering.processSecondStep(message: Message) {
+    private fun StudentState.Registering.processSecondStep(message: Message) {
         message.text ?: TODO("Текст сообщения отсутствует")
         val userGroup = try {
             val groupNumber = message.text.toInt() - 1
@@ -186,8 +185,8 @@ class BotController : KoinComponent {
         val messageText: String
         if (userGroup != Group.UNDEFINED) {
             val student = student.copy(group = userGroup)
-            usersCache[message.userInfo.userId] = BotState.Registered
-            studentsRepository.registerStudent(student)
+            registerStudent(student)
+            updateStudentState[message.userInfo.userId] = StudentState.Registered
             messageText = REGISTER_SUCCESS
         } else {
             messageText = REGISTER_FAILED
@@ -196,10 +195,10 @@ class BotController : KoinComponent {
             userInfo = message.userInfo,
             text = messageText
         )
-        botRepository.sendMessage(newMessage)
+        sendMessage(newMessage)
     }
 
-    private fun BotState.AddingVisit.process(message: Message) {
+    private fun StudentState.AddingVisit.process(message: Message) {
         when (discipline) {
             Discipline.Oop -> processOpVisit(message)
             Discipline.Op -> processOopVisit(message)
@@ -215,69 +214,39 @@ class BotController : KoinComponent {
     }
 
     private fun processVisit(message: Message, subject: Subject) {
-        val student = studentsRepository.getUserById(message.userInfo.userId) ?: run {
-            botRepository.sendMessage(message.copy(text = UNKNOWN_USER))
+        val student = getStudent[message.userInfo.userId] ?: run {
+            sendMessage(message.copy(text = UNKNOWN_USER))
             return
         }
-        val (date, number) = try {
-            answerParser(message.text)
+        val visitPayload = try {
+            message.text.answerParser()
         } catch (e: RuntimeException) {
-            botRepository.sendMessage(message.copy(text = e.localizedMessage))
+            logw(throwable = e) { "Visit payload parsing failed with message " }
+            sendMessage(message.copy(text = e.localizedMessage))
             return
         }
 
         val visit = Visit(
             studentId = student.id,
-            date = date,
-            numberOnImage = number,
+            date = visitPayload.date,
+            numberOnImage = visitPayload.number,
             subject = subject
         )
-        visitRepository.registerVisit(visit)
-        botRepository.sendMessage(
+        registerVisit(visit)
+        sendMessage(
             message.copy(
                 replyId = message.messageId,
                 text = VISIT_REGISTER_SUCCEED
             )
         )
-        usersCache[message.userInfo.userId] = BotState.Registered
-    }
-
-    private fun answerParser(text: String?): Pair<LocalDate, Int> {
-        val studentAnswer = text ?: throw VisitParserException.InvalidInputData
-        val (dateStr, number) = try {
-            val data = studentAnswer.split("\n")
-            if (data.size != 2) {
-                throw VisitParserException.InvalidInputData
-            } else {
-                data
-            }
-        } catch (e: RuntimeException) {
-            logw(throwable = e) { "Can't parse input data: $text" }
-            throw VisitParserException.InvalidInputData
-        }
-        val date = try {
-            val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
-            LocalDate.parse(dateStr, formatter)
-        } catch (e: RuntimeException) {
-            logw(throwable = e) { "LocalDate parsing failed, input was: $dateStr" }
-            throw VisitParserException.InvalidDateFormat
-        }
-        val numberValue = try {
-            number.toInt()
-        } catch (e: RuntimeException) {
-            logw(throwable = e) { "Can't parse student data, input was: $number" }
-            throw VisitParserException.InvalidPhotoNumber
-        }
-        return date to numberValue
+        updateStudentState[message.userInfo.userId] = StudentState.Registered
     }
 
     companion object {
-        private const val STUDENTS_INITIAL = 50
-        private const val STUDENTS_LIMIT = 200L
-        private const val STUDENT_KEEP_IN_CACHE = 1L
 
         private const val HELP_MESSAGE = "По вопросам работы бота обращайтесь в телеграмм - @Y2Kot."
-//        private const val SERVICE_MESSAGE = "Комманда на ремонте, будет доступна позже."
+
+        //        private const val SERVICE_MESSAGE = "Команда на ремонте, будет доступна позже."
         private const val UNDEFINED = "Получено неизвестное сообщение"
 
         private const val REGISTERING_FIRST_MESSAGE = "Здравствуйте!\n\n" +
