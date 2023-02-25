@@ -11,10 +11,11 @@ import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession
 import ru.kudryavtsev.datasource.remote.model.MessageDto
 import ru.kudryavtsev.datasource.remote.model.UserInfoDto
+import ru.kudryavtsev.domain.model.AppContext
 import java.io.File
 
 
-class BotApi : TelegramLongPollingBot(TOKEN) {
+class BotApi(context: AppContext) : TelegramLongPollingBot(context.token) {
     private val _botMessages = MutableSharedFlow<MessageDto>(
         extraBufferCapacity = 100,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
@@ -70,7 +71,6 @@ class BotApi : TelegramLongPollingBot(TOKEN) {
     }
 
     private companion object {
-        private const val TOKEN = "6037823778:AAHBP1T57QyoYGmQxq3QBlWUSBMT7PyPhQ8"
         private const val BOT_NAME = "Посещаемость СГН3 ОП/ООП"
     }
 }

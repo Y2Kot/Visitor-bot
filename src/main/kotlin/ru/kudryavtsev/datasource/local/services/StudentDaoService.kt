@@ -5,6 +5,7 @@ import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.transaction
 import ru.kudryavtsev.datasource.local.entity.StudentEntity
 import ru.kudryavtsev.datasource.local.entity.Students
+import ru.kudryavtsev.datasource.local.mappers.toEntity
 import ru.kudryavtsev.domain.model.Student
 
 class StudentDaoService {
@@ -21,7 +22,7 @@ class StudentDaoService {
             userId = student.userId
             chatId = student.chatId
             name = student.name
-            group = student.group.ordinal
+            group = student.group.toEntity()
         }
     }
 
