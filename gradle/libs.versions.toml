@@ -1,0 +1,32 @@
+[versions]
+coroutines = "1.6.4"
+telegram-bot = "6.5.0"
+koin = "3.3.3"
+exposed = "0.41.1"
+caffeine = "3.1.3"
+logger = "1.0.0.29312"
+sqlite = "3.40.1.0"
+logback = "1.4.5"
+
+[libraries]
+coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+
+telegram-bot = { module = "org.telegram:telegrambots", version.ref = "telegram-bot" }
+
+koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
+
+exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
+exposed-dao = { module = "org.jetbrains.exposed:exposed-dao", version.ref = "exposed" }
+exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
+exposed-java-time = { module = "org.jetbrains.exposed:exposed-java-time", version.ref = "exposed" }
+sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "sqlite" }
+
+caffeince-cache = { module = "com.github.ben-manes.caffeine:caffeine", version.ref = "caffeine" }
+
+qoollo-logger-core = { module = "com.qoollo.qoollo-logger:qoollo-logger", version.ref = "logger" }
+qoollo-logger-logback = { module = "com.qoollo.qoollo-logger:logback-logger", version.ref = "logger" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+
+[bundles]
+database = ["exposed-core", "exposed-dao", "exposed-jdbc", "exposed-java-time", "sqlite-jdbc" ]
+logger = [ "qoollo-logger-core", "qoollo-logger-logback", "logback-classic" ]

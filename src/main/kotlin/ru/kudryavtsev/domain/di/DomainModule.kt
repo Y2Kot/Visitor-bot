@@ -1,3 +1,5 @@
+@file:Suppress("RemoveExplicitTypeArguments")
+
 package ru.kudryavtsev.domain.di
 
 import org.koin.core.module.dsl.factoryOf
@@ -12,6 +14,7 @@ import ru.kudryavtsev.domain.controller.RegisterController
 import ru.kudryavtsev.domain.controller.UndefinedController
 import ru.kudryavtsev.domain.controller.UploadImageController
 import ru.kudryavtsev.domain.controller.VisitDisciplineController
+import ru.kudryavtsev.domain.model.AppContext
 import ru.kudryavtsev.domain.repository.AdministratorRepository
 import ru.kudryavtsev.domain.repository.BotRepository
 import ru.kudryavtsev.domain.repository.StudentsRepository
@@ -28,6 +31,8 @@ import ru.kudryavtsev.domain.usecase.SendMessageUseCase
 import ru.kudryavtsev.domain.usecase.UpdateStudentStateUseCase
 
 val domainModule = module {
+    single<AppContext> { AppContext.getEnvironment() }
+
     factoryOf(::AdministratorDaoService)
     factoryOf(::StudentDaoService)
     factoryOf(::VisitDaoService)

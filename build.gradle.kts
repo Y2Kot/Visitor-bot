@@ -15,7 +15,7 @@ val localProperties = Properties().apply {
 }
 
 group = "ru.kudryavtsev"
-version = "1.3"
+version = "1.4"
 
 repositories {
     maven(url = "https://maven.nexus.qoollo.com/")
@@ -33,27 +33,12 @@ docker {
 }
 
 dependencies {
-    // Coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-    // Telegram bot
-    implementation("org.telegram:telegrambots:6.5.0")
-    // Di
-    val koinVersion = "3.3.3"
-    implementation("io.insert-koin:koin-core:$koinVersion")
-    // Database
-    val exposedVersion = "0.41.1"
-    implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
-    implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
-    implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
-    implementation("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
-    implementation("org.xerial:sqlite-jdbc:3.40.1.0")
-    // LRU
-    implementation("com.github.ben-manes.caffeine:caffeine:3.1.3")
-    // Logger
-    val qoolloLogger = "1.0.0.29312"
-    implementation("com.qoollo.qoollo-logger:qoollo-logger:$qoolloLogger")
-    implementation("com.qoollo.qoollo-logger:logback-logger:$qoolloLogger")
-    implementation("ch.qos.logback:logback-classic:1.4.5")
+    implementation(libs.coroutines.core)
+    implementation(libs.telegram.bot)
+    implementation(libs.koin.core)
+    implementation(libs.bundles.database)
+    implementation(libs.caffeince.cache)
+    implementation(libs.bundles.logger)
 
     testImplementation(kotlin("test"))
 }
