@@ -57,6 +57,7 @@ private fun initializeDb(context: AppContext) {
     transaction {
         addLogger(StdOutSqlLogger)
         SchemaUtils.create(Visits, Students, Administrators)
+        SchemaUtils.addMissingColumnsStatements(Visits)
     }
 }
 
