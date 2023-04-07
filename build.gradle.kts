@@ -21,6 +21,11 @@ repositories {
     maven(url = "https://maven.nexus.qoollo.com/")
 }
 
+subprojects {
+    repositories {
+        maven(url = "https://maven.nexus.qoollo.com/")
+    }
+}
 application {
     mainClass.set("$group.BotAppKt")
 }
