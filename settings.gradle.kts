@@ -6,3 +6,5 @@ pluginManagement {
 }
 rootProject.name = "visitor-bot"
 
+include(":photocutter")
+include(":photocutter:desktop")

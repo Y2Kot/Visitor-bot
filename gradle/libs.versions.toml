@@ -7,8 +7,11 @@ caffeine = "3.1.3"
 logger = "1.0.0.29312"
 sqlite = "3.40.1.0"
 logback = "1.4.5"
+onnxruntime = "1.14.0"
+javacv = "1.5.8"
 
 [libraries]
+
 coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 
 telegram-bot = { module = "org.telegram:telegrambots", version.ref = "telegram-bot" }
@@ -27,6 +30,10 @@ qoollo-logger-core = { module = "com.qoollo.qoollo-logger:qoollo-logger", versio
 qoollo-logger-logback = { module = "com.qoollo.qoollo-logger:logback-logger", version.ref = "logger" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 
+cutter-onnxruntime = {module = "com.microsoft.onnxruntime:onnxruntime", version.ref = "onnxruntime" }
+cutter-javacv = {module = "org.bytedeco:javacv-platform", version.ref = "javacv" }
+
 [bundles]
 database = ["exposed-core", "exposed-dao", "exposed-jdbc", "exposed-java-time", "sqlite-jdbc" ]
 logger = [ "qoollo-logger-core", "qoollo-logger-logback", "logback-classic" ]
+cutter = [ "cutter-onnxruntime", "cutter-javacv" ]
