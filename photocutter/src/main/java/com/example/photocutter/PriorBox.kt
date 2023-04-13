@@ -15,7 +15,7 @@ class PriorBox(private val imgH: Int, private val imgW: Int)
     }
 
     private fun generatePriors(): Array<FloatArray> {
-        val anchors = emptyList<FloatArray>().toMutableList()
+        val anchors = mutableListOf<FloatArray>()
         for (idx in steps.indices) {
             val sizes = minSizes[idx]
             val step = steps[idx]

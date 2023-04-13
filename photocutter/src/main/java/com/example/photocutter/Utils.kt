@@ -28,9 +28,9 @@ fun nms(data: Array<FloatArray>, nmsThreshold: Float = 0.4f): Array<FloatArray> 
         return iou
     }
 
-    val result = emptyList<FloatArray>().toMutableList()
+    val result = mutableListOf<FloatArray>()
     while (order.isNotEmpty()) {
-        val newOrder = emptyList<Int>().toMutableList()
+        val newOrder = mutableListOf<Int>()
 
         val i = order[0]
         result.add(data[i])
