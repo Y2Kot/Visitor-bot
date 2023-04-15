@@ -74,8 +74,8 @@ open class BaseFaceDetectionService {
     }
 
     companion object {
-        protected const val NMS_THRESHOLD = 0.4f
-        protected const val SCORE_THRESHOLD = 0.35 //0.65    // network confidence level [0..1]
+        protected const val NMS_THRESHOLD = 0.2f
+        protected const val SCORE_THRESHOLD = 0.5 //0.65    // network confidence level [0..1]
         @JvmStatic
         protected val MAX_IMAGE_PIXELS = 10500*10000L //2500*2000L // images will be proportionally resized to have <= MAX_IMAGE_PIXELS pixels
     }
