@@ -1,6 +1,6 @@
 package ru.kudryavtsev.domain.controller
 
-import ru.kudryavtsev.model.Message
+import ru.kudryavtsev.domain.model.Message
 import ru.kudryavtsev.domain.usecase.GetStudentUseCase
 import ru.kudryavtsev.domain.usecase.SendMessageUseCase
 

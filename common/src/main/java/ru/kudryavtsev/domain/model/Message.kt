@@ -1,4 +1,4 @@
-package ru.kudryavtsev.model
+package ru.kudryavtsev.domain.model
 
 import java.io.File
 

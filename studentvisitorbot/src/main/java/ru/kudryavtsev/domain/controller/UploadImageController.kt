@@ -1,16 +1,17 @@
 package ru.kudryavtsev.domain.controller
 
-import ru.kudryavtsev.model.Message
-import ru.kudryavtsev.domain.model.StudentState
+import ru.kudryavtsev.domain.model.BaseUserState
+import ru.kudryavtsev.domain.model.Message
+import ru.kudryavtsev.domain.model.UserState
 import ru.kudryavtsev.domain.usecase.CheckAdminPermissionUseCase
 import ru.kudryavtsev.domain.usecase.GetAllStudentsUseCase
 import ru.kudryavtsev.domain.usecase.SendMessageUseCase
-import ru.kudryavtsev.domain.usecase.UpdateStudentStateUseCase
+import ru.kudryavtsev.domain.usecase.UpdateUserStateUseCase
 
 class UploadImageController(
     private val checkAdminPermission: CheckAdminPermissionUseCase,
     private val sendMessage: SendMessageUseCase,
-    private val updateStudentState: UpdateStudentStateUseCase,
+    private val updateUserState: UpdateUserStateUseCase,
     private val getAllStudents: GetAllStudentsUseCase
 ) {
     fun uploadImage(message: Message) {
@@ -18,7 +19,7 @@ class UploadImageController(
             sendMessage(message.copy(text = NOT_ENOUGH_PERMISSIONS))
             return
         }
-        updateStudentState[message.userInfo.userId] = StudentState.UploadingImage
+        updateUserState[message.userInfo.userId] = UserState.UploadingImage
         sendMessage(message.copy(text = UPLOAD_IMAGE))
     }
 
@@ -35,7 +36,7 @@ class UploadImageController(
                 )
             )
         }
-        updateStudentState[message.userInfo.userId] = StudentState.Registered
+        updateUserState[message.userInfo.userId] = BaseUserState.Registered
     }
 
     companion object {

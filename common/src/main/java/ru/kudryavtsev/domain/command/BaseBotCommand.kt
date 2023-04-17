@@ -1,4 +1,4 @@
-package ru.kudryavtsev.command
+package ru.kudryavtsev.domain.command
 
 interface BaseBotCommand {
     object Start : BaseBotCommand

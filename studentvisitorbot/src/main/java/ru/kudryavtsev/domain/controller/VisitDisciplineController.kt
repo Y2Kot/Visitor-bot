@@ -1,30 +1,31 @@
 package ru.kudryavtsev.domain.controller
 
 import com.qoollo.logger.logw
+import ru.kudryavtsev.domain.model.BaseUserState
 import ru.kudryavtsev.domain.model.Discipline
-import ru.kudryavtsev.model.Message
-import ru.kudryavtsev.domain.model.StudentState
+import ru.kudryavtsev.domain.model.Message
+import ru.kudryavtsev.domain.model.UserState
 import ru.kudryavtsev.domain.model.Subject
 import ru.kudryavtsev.domain.model.Visit
 import ru.kudryavtsev.domain.usecase.GetStudentUseCase
 import ru.kudryavtsev.domain.usecase.RegisterVisitUseCase
 import ru.kudryavtsev.domain.usecase.SendMessageUseCase
-import ru.kudryavtsev.domain.usecase.UpdateStudentStateUseCase
+import ru.kudryavtsev.domain.usecase.UpdateUserStateUseCase
 import ru.kudryavtsev.domain.util.answerParser
 
 class VisitDisciplineController(
-    private val updateStudentState: UpdateStudentStateUseCase,
+    private val updateStudentState: UpdateUserStateUseCase,
     private val sendMessage: SendMessageUseCase,
     private val getStudent: GetStudentUseCase,
     private val registerVisit: RegisterVisitUseCase,
 ) {
     fun visitOp(message: Message) {
-        updateStudentState[message.userInfo.userId] = StudentState.AddingVisit(Discipline.Op)
+        updateStudentState[message.userInfo.userId] = UserState.AddingVisit(Discipline.Op)
         sendMessage(message.copy(text = REGISTER_VISIT_INTRO))
     }
 
     fun visitOop(message: Message) {
-        updateStudentState[message.userInfo.userId] = StudentState.AddingVisit(Discipline.Oop)
+        updateStudentState[message.userInfo.userId] = UserState.AddingVisit(Discipline.Oop)
         sendMessage(message.copy(text = REGISTER_VISIT_INTRO))
     }
 
@@ -69,7 +70,7 @@ class VisitDisciplineController(
                 text = VISIT_REGISTER_SUCCEED
             )
         )
-        updateStudentState[message.userInfo.userId] = StudentState.Registered
+        updateStudentState[message.userInfo.userId] = BaseUserState.Registered
     }
 
 

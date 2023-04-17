@@ -6,14 +6,15 @@ import kotlinx.coroutines.flow.SharedFlow
 import org.telegram.telegrambots.bots.TelegramLongPollingBot
 import org.telegram.telegrambots.meta.TelegramBotsApi
 import org.telegram.telegrambots.meta.api.methods.GetFile
+import org.telegram.telegrambots.meta.api.methods.send.SendDocument
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
+import org.telegram.telegrambots.meta.api.objects.InputFile
 import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession
 import ru.kudryavtsev.datasource.remote.model.MessageDto
 import ru.kudryavtsev.datasource.remote.model.UserInfoDto
 import ru.kudryavtsev.domain.AppContext
 import java.io.File
-
 
 class BotApi(context: AppContext) : TelegramLongPollingBot(context.token) {
     private val _botMessages = MutableSharedFlow<MessageDto>(
@@ -51,6 +52,24 @@ class BotApi(context: AppContext) : TelegramLongPollingBot(context.token) {
     }
 
     fun sendMessage(message: MessageDto) {
+        if (message.attachment != null) {
+            sendDocumentMessage(message)
+        } else {
+            sendTextMessage(message)
+        }
+    }
+
+    private fun sendDocumentMessage(message: MessageDto) {
+        val newMessage = SendDocument.builder()
+            .chatId(message.userInfo.chatId)
+            .replyToMessageId(message.replyId)
+            .parseMode("markdown")
+            .document(InputFile(message.attachment))
+            .caption(message.text)
+        execute(newMessage.build())
+    }
+
+    private fun sendTextMessage(message: MessageDto) {
         val newMessage = SendMessage.builder()
             .chatId(message.userInfo.chatId)
             .replyToMessageId(message.replyId)
@@ -71,6 +90,6 @@ class BotApi(context: AppContext) : TelegramLongPollingBot(context.token) {
     }
 
     private companion object {
-        private const val BOT_NAME = "Посещаемость СГН3 ОП/ООП"
+        private const val BOT_NAME = "Старшина"
     }
 }

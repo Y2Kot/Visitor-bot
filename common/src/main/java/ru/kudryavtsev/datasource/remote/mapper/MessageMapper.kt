@@ -1,9 +1,9 @@
-package ru.kudryavtsev.datasource.remote.mappers
+package ru.kudryavtsev.datasource.remote.mapper
 
 import ru.kudryavtsev.datasource.remote.model.MessageDto
 import ru.kudryavtsev.datasource.remote.model.UserInfoDto
-import ru.kudryavtsev.model.Message
-import ru.kudryavtsev.model.UserInfo
+import ru.kudryavtsev.domain.model.Message
+import ru.kudryavtsev.domain.model.UserInfo
 
 
 fun MessageDto.toDomain(): Message = Message(
@@ -11,6 +11,7 @@ fun MessageDto.toDomain(): Message = Message(
     userInfo = userInfo.toDomain(),
     replyId = replyId,
     text = text,
+    attachment = attachment,
     isCommand = isCommand
 )
 
@@ -19,6 +20,7 @@ fun Message.toDto(): MessageDto = MessageDto(
     userInfo = userInfo.toDto(),
     replyId = replyId,
     text = text,
+    attachment = attachment,
     isCommand = isCommand
 )
 

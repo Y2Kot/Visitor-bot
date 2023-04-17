@@ -1,6 +1,6 @@
 package ru.kudryavtsev.domain.model
 
-import ru.kudryavtsev.command.BaseBotCommand
+import ru.kudryavtsev.domain.command.BaseBotCommand
 
 sealed interface BotCommand: BaseBotCommand {
     object VisitOp : BotCommand

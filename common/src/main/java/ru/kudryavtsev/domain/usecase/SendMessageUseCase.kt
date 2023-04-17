@@ -1,6 +1,6 @@
 package ru.kudryavtsev.domain.usecase
 
-import ru.kudryavtsev.model.Message
+import ru.kudryavtsev.domain.model.Message
 import ru.kudryavtsev.domain.repository.BotRepository
 
 class SendMessageUseCase(private val repository: BotRepository) {

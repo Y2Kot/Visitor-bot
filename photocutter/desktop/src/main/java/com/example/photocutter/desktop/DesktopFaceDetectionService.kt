@@ -27,6 +27,7 @@ class DesktopFaceDetectionService(modelPath: String): BaseFaceDetectionService()
         return null
     }
 
+    @Synchronized
     fun getAllFacesBoundingBoxes(image: BufferedImage): List<BoundingBox> {
         // get all faces found
         val result = runModel(image, FACE_MODE.MULTI)
