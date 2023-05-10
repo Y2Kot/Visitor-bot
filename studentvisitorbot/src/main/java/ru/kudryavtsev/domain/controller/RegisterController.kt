@@ -1,19 +1,20 @@
 package ru.kudryavtsev.domain.controller
 
+import ru.kudryavtsev.domain.model.BaseUserState
 import ru.kudryavtsev.domain.model.Group
-import ru.kudryavtsev.model.Message
+import ru.kudryavtsev.domain.model.Message
 import ru.kudryavtsev.domain.model.RegisteringStep
 import ru.kudryavtsev.domain.model.Student
-import ru.kudryavtsev.domain.model.StudentState
+import ru.kudryavtsev.domain.model.UserState
 import ru.kudryavtsev.domain.usecase.GetStudentUseCase
 import ru.kudryavtsev.domain.usecase.RegisterStudentUseCase
 import ru.kudryavtsev.domain.usecase.SendMessageUseCase
-import ru.kudryavtsev.domain.usecase.UpdateStudentStateUseCase
+import ru.kudryavtsev.domain.usecase.UpdateUserStateUseCase
 
 class RegisterController(
     private val sendMessage: SendMessageUseCase,
     private val getStudent: GetStudentUseCase,
-    private val updateStudentState: UpdateStudentStateUseCase,
+    private val updateUserState: UpdateUserStateUseCase,
     private val registerStudent: RegisterStudentUseCase
 ) {
     fun registerUser(message: Message) {
@@ -26,7 +27,7 @@ class RegisterController(
             sendMessage(newMessage)
             return
         }
-        updateStudentState[message.userInfo.userId] = StudentState.Registering(
+        updateUserState[message.userInfo.userId] = UserState.Registering(
             student = Student(
                 userId = message.userInfo.userId,
                 chatId = message.userInfo.chatId,
@@ -41,7 +42,7 @@ class RegisterController(
         sendMessage(newMessage)
     }
 
-    fun processRegistration(message: Message, registerState: StudentState.Registering) {
+    fun processRegistration(message: Message, registerState: UserState.Registering) {
         when (registerState.registeringStep) {
             RegisteringStep.First -> registerState.processFirstStep(message)
             RegisteringStep.Second -> registerState.processSecondStep(message)
@@ -53,9 +54,9 @@ class RegisterController(
         sendMessage(newMessage)
     }
 
-    private fun StudentState.Registering.processFirstStep(message: Message) {
+    private fun UserState.Registering.processFirstStep(message: Message) {
         val userName = message.text ?: TODO("Текст сообщения отсутствует")
-        updateStudentState[message.userInfo.userId] = this.copy(
+        updateUserState[message.userInfo.userId] = this.copy(
             registeringStep = RegisteringStep.Second,
             student = student.copy(name = userName)
         )
@@ -68,7 +69,7 @@ class RegisterController(
         )
     }
 
-    private fun StudentState.Registering.processSecondStep(message: Message) {
+    private fun UserState.Registering.processSecondStep(message: Message) {
         val textMessage = message.text ?: TODO("Текст сообщения отсутствует")
         val userGroup = try {
             val groupNumber = textMessage.toInt() - 1
@@ -81,7 +82,7 @@ class RegisterController(
         if (userGroup != Group.UNDEFINED) {
             val student = student.copy(group = userGroup)
             registerStudent(student)
-            updateStudentState[message.userInfo.userId] = StudentState.Registered
+            updateUserState[message.userInfo.userId] = BaseUserState.Registered
             messageText = REGISTER_SUCCESS
         } else {
             messageText = REGISTER_FAILED

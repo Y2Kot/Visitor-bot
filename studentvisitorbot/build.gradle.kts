@@ -53,7 +53,6 @@ dependencies {
     implementation(libs.telegram.bot)
     implementation(libs.koin.core)
     implementation(libs.bundles.database)
-    implementation(libs.caffeince.cache)
     implementation(libs.bundles.logger)
 
     testImplementation(kotlin("test"))

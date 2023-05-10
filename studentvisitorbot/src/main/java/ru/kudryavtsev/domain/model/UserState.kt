@@ -1,14 +1,12 @@
 package ru.kudryavtsev.domain.model
 
-sealed interface StudentState {
-    object Undefined: StudentState
-    object Registered: StudentState
+sealed interface UserState: BaseUserState {
     data class Registering(
         val registeringStep: RegisteringStep = RegisteringStep.First,
         val student: Student
-    ): StudentState
-    data class AddingVisit(val discipline: Discipline): StudentState
-    object UploadingImage: StudentState
+    ): UserState
+    data class AddingVisit(val discipline: Discipline): UserState
+    object UploadingImage: UserState
 }
 
 sealed interface RegisteringStep {

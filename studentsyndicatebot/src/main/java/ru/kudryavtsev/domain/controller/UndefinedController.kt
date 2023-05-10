@@ -8,7 +8,13 @@ class UndefinedController(private val sendMessage: SendMessageUseCase) {
         sendMessage(message.copy(text = UNDEFINED))
     }
 
+    fun sendDummyMessage(message: Message) {
+        val newMessage = message.copy(text = DUMMY_MESSAGE)
+        sendMessage(newMessage)
+    }
+
     companion object {
         private const val UNDEFINED = "Получено неизвестное сообщение"
+        private const val DUMMY_MESSAGE = "Для работы с ботом воспользуйтесь меню команд."
     }
 }

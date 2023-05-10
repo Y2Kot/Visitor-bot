@@ -6,6 +6,7 @@ plugins {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(libs.coroutines.core)
+    implementation(libs.caffeince.cache)
 }
 
 kotlin {

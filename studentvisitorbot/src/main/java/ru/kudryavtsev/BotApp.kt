@@ -20,14 +20,20 @@ import org.koin.core.logger.PrintLogger
 import ru.kudryavtsev.datasource.local.entity.Administrators
 import ru.kudryavtsev.datasource.local.entity.Students
 import ru.kudryavtsev.datasource.local.entity.Visits
+import ru.kudryavtsev.domain.AppContext
 import ru.kudryavtsev.domain.BotProcessor
 import ru.kudryavtsev.domain.di.domainModule
 import ru.kudryavtsev.domain.di.remoteModule
 import java.sql.Connection
 
 suspend fun main() {
+    val koin = startKoin {
+        logger(PrintLogger(Level.INFO))
+        modules(domainModule, remoteModule)
+    }
+
     val scope = CoroutineScope(Dispatchers.Default)
-    val currentContext = AppContext.getEnvironment()
+    val currentContext = koin.koin.get<AppContext>()
 
     initializeLogger(currentContext)
 
@@ -38,11 +44,6 @@ suspend fun main() {
     }
 
     initializeDb(currentContext)
-
-    val koin = startKoin {
-        logger(PrintLogger(Level.INFO))
-        modules(domainModule, remoteModule)
-    }
 
     val botProcessor = koin.koin.get<BotProcessor>()
     botProcessor.messages.launchIn(scope)
@@ -63,7 +64,7 @@ private fun initializeLogger(context: AppContext) {
     QoolloLogger {
         val logbackKey = "logback"
         val filePolicy = FilePolicy(
-            fileName = "BotLoggerFiles",
+            fileName = "VisitorBotLoggerFiles",
             filesPath = context.volumePath,
             fileSize = 1024 * 1024 * 6,
             filesCount = 5,
