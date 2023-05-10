@@ -13,4 +13,5 @@ include(
     ":photocutter",
     ":photocutter:desktop",
     ":common",
+    "google-sheets",
 )
