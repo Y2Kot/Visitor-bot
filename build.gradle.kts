@@ -15,6 +15,7 @@ val localProperties: Properties by extra {
 
 repositories {
     maven("https://maven.nexus.qoollo.com/")
+    mavenCentral()
 }
 
 subprojects {

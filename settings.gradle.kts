@@ -14,4 +14,5 @@ include(
     ":photocutter:desktop",
     ":common",
     "google-sheets",
+    "csv-loader",
 )
