@@ -13,16 +13,15 @@ import com.google.api.client.util.store.FileDataStoreFactory
 import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.SheetsScopes
 import com.google.api.services.sheets.v4.model.ValueRange
+import ru.kudryavtsev.domain.AppContext
 import ru.kudryavtsev.model.Range
 import ru.kudryavtsev.model.Spreadsheet
-import java.io.File
-import java.io.FileNotFoundException
 import java.io.IOException
-import java.io.InputStreamReader
 
 
 class SheetsApi(
-    private val spreadsheet: Spreadsheet
+    private val spreadsheet: Spreadsheet,
+    private val context: AppContext
 ) {
     private val httpTransport = GoogleNetHttpTransport.newTrustedTransport()
 
@@ -34,7 +33,7 @@ class SheetsApi(
     private val jsonFactory: JsonFactory = GsonFactory.getDefaultInstance()
 
     // Load client secrets.
-    private val clientSecrets = GoogleClientSecrets.load(jsonFactory, CREDENTIALS_FILE_PATH.reader())
+    private val clientSecrets = GoogleClientSecrets.load(jsonFactory, context.credentialsReader)
 
     private val service: Sheets = Sheets.Builder(httpTransport, jsonFactory, getCredentials())
         .setApplicationName(APPLICATION_NAME)
@@ -50,7 +49,7 @@ class SheetsApi(
     private fun getCredentials(): Credential {
         // Build flow and trigger user authorization request.
         val flow = GoogleAuthorizationCodeFlow.Builder(httpTransport, jsonFactory, clientSecrets, scopes)
-            .setDataStoreFactory(FileDataStoreFactory(File(TOKENS_DIRECTORY_PATH)))
+            .setDataStoreFactory(FileDataStoreFactory(context.tokenDirectory))
             .setAccessType("offline")
             .build()
         val receiver = LocalServerReceiver.Builder().setPort(DEFAULT_PORT).build()
@@ -85,18 +84,10 @@ class SheetsApi(
         }
     }
 
-    private fun String.reader(): InputStreamReader {
-        val fileStream = SheetsApi::class.java.getResourceAsStream(this)
-            ?: throw FileNotFoundException("Resource not found: $this")
-        return fileStream.reader()
-    }
-
     companion object {
         private const val VALUE_INPUT_OPTION = "USER_ENTERED"
 
         private const val APPLICATION_NAME = "Google Sheets API Java Quickstart"
-        private const val TOKENS_DIRECTORY_PATH = "tokens"
-        private const val CREDENTIALS_FILE_PATH = "/credentials.json"
         private const val DEFAULT_PORT = 8888
     }
 }
