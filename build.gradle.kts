@@ -1,5 +1,11 @@
 import java.util.Properties
 
+/**
+ * For building on arm for amd64 use this commands:
+ * docker buildx build --platform linux/amd64 -t y2kot/studentvisitorbot:1.5 --push .
+ * docker buildx build --platform linux/amd64 -t y2kot/studentsyndicatebot:1.1 --push .
+ */
+
 plugins {
     kotlin("jvm") version "1.8.21"
     id("com.bmuschko.docker-remote-api") version "9.2.1"
