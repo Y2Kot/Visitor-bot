@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   visitor-bot:
-    image: "y2kot/visitor-bot:1.4"
+    image: "y2kot/studentvisitorbot:1.5"
     volumes:
       - ./data:/data
     deploy:
@@ -15,7 +15,7 @@ services:
         max-file: "5"
 
   syndicate-bot:
-    image: "y2kot/visitor-bot:1.4"
+    image: "y2kot/studentsyndicatebot:1.1"
     volumes:
       - ./data:/data
     deploy:
