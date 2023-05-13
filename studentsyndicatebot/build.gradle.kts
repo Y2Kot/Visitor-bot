@@ -27,7 +27,8 @@ val copyJarToDocker by tasks.creating(Copy::class) {
 }
 
 val createDockerFile by tasks.creating(Dockerfile::class) {
-    from(ext["docker.image"] as String)
+    // Image must be full OS based to make onnx work correct
+    from(ext["docker.neuroimage"] as String)
     label(mapOf("maintainer" to ext["docker.maintainer"] as String))
     workingDir("SyndicateBot")
     copyFile("${project.name}-$version-all.jar", "${project.name}.jar")
