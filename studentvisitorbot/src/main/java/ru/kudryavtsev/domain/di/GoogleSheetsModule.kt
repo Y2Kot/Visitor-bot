@@ -11,7 +11,7 @@ import ru.kudryavtsev.model.Spreadsheet
 val googleSheetsModule = module {
     factory {
         val spreadsheet = Spreadsheet("1rEO_46F95V8bPRIyWuvuSDbfvirl3eDd9lDcstvQnak")
-        SheetsApi(spreadsheet)
+        SheetsApi(spreadsheet, get())
     }
 
     factoryOf(::SheetsService)

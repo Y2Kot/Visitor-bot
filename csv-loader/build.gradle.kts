@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "ru.kudryavtsev"
-version = "1.4"
+version = "1.0"
 
 repositories {
     mavenCentral()

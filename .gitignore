@@ -5,4 +5,4 @@
 .DS_Store
 local.properties
 secret.properties
-/tokens
+/data/tokens
