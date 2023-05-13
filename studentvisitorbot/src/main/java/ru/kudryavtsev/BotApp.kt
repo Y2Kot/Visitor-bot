@@ -22,14 +22,16 @@ import ru.kudryavtsev.datasource.local.entity.Students
 import ru.kudryavtsev.datasource.local.entity.Visits
 import ru.kudryavtsev.domain.AppContext
 import ru.kudryavtsev.domain.BotProcessor
+import ru.kudryavtsev.domain.di.csvModule
 import ru.kudryavtsev.domain.di.domainModule
+import ru.kudryavtsev.domain.di.googleSheetsModule
 import ru.kudryavtsev.domain.di.remoteModule
 import java.sql.Connection
 
 suspend fun main() {
     val koin = startKoin {
         logger(PrintLogger(Level.INFO))
-        modules(domainModule, remoteModule)
+        modules(domainModule, remoteModule, csvModule, googleSheetsModule)
     }
 
     val scope = CoroutineScope(Dispatchers.Default)

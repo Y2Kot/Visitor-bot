@@ -14,7 +14,9 @@ sealed interface RegisteringStep {
     object Second: RegisteringStep
 }
 
-sealed interface Discipline {
-    object Op: Discipline
-    object Oop: Discipline
+sealed class Discipline(val description: String) {
+    object OpLecture: Discipline("*Дисциплина:* ОП\n*Тип занятия:* Лекция")
+    object OpLab: Discipline("*Дисциплина:* ОП\n*Тип занятия:* Лабораторная")
+    object OopLecture: Discipline("*Дисциплина:* ООП\n*Тип занятия:* Лекция")
+    object OopLab: Discipline("*Дисциплина:* ООП\n*Тип занятия:* Лабораторная")
 }

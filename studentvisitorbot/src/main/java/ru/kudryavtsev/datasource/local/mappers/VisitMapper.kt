@@ -15,11 +15,15 @@ fun VisitEntity.toDomain(): Visit = Visit(
 )
 
 fun SubjectEntity.toDomain(): Subject = when(this) {
-    SubjectEntity.OP -> Subject.OP
-    SubjectEntity.OOP -> Subject.OOP
+    SubjectEntity.OP_LECTURE -> Subject.OP_LECTURE
+    SubjectEntity.OP_LAB -> Subject.OP_LAB
+    SubjectEntity.OOP_LECTURE -> Subject.OOP_LECTURE
+    SubjectEntity.OOP_LAB -> Subject.OOP_LAB
 }
 
 fun Subject.toEntity(): SubjectEntity = when(this) {
-    Subject.OP -> SubjectEntity.OP
-    Subject.OOP -> SubjectEntity.OOP
+    Subject.OP_LECTURE -> SubjectEntity.OP_LECTURE
+    Subject.OP_LAB -> SubjectEntity.OP_LAB
+    Subject.OOP_LECTURE -> SubjectEntity.OOP_LECTURE
+    Subject.OOP_LAB -> SubjectEntity.OOP_LAB
 }

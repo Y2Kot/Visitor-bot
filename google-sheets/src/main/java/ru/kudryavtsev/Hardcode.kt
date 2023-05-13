@@ -2,12 +2,13 @@ package ru.kudryavtsev
 
 import ru.kudryavtsev.model.Cell
 import ru.kudryavtsev.model.Week
+import java.time.LocalDate
 
+val SEMESTER_START_DATE: LocalDate = LocalDate.of(2023, 2, 6)
 const val WEEKS_COUNT = 17
 const val LESSONS_PER_WEEK = 4
 const val SURNAME_SEARCH = "B5:B31"
 const val STUDENTS_OFFSET = 5
-
 private val cellIndexes = listOf(
     "C",
     "D",
@@ -82,7 +83,7 @@ private val cellIndexes = listOf(
 val weeks: List<Week> = buildList {
     repeat(WEEKS_COUNT) { iteration ->
         val week = Week(
-            number = iteration + 1,
+            number = iteration.toLong() + 1,
             opLecture = Cell(column = cellIndexes[iteration * LESSONS_PER_WEEK + 0]),
             opLaboratory = Cell(column = cellIndexes[iteration * LESSONS_PER_WEEK + 1]),
             oopLecture = Cell(column = cellIndexes[iteration * LESSONS_PER_WEEK + 2]),

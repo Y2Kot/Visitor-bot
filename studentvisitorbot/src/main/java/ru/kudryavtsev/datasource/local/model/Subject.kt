@@ -1,6 +1,8 @@
 package ru.kudryavtsev.datasource.local.model
 
 enum class Subject {
-    OP,
-    OOP
+    OP_LECTURE,
+    OP_LAB,
+    OOP_LECTURE,
+    OOP_LAB
 }

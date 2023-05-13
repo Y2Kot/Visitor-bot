@@ -48,6 +48,8 @@ val publishImage by tasks.creating(DockerPushImage::class) {
 
 dependencies {
     implementation(projects.common)
+    implementation(projects.csvLoader)
+    implementation(projects.googleSheets)
 
     implementation(libs.coroutines.core)
     implementation(libs.telegram.bot)

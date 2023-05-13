@@ -5,12 +5,20 @@ import ru.kudryavtsev.model.StudentRecord
 import java.io.File
 
 class ReadCsvUseCase {
-    operator fun invoke(file: File): List<StudentRecord> =
-        file.readCsvNotNull { tokenList ->
-            if (tokenList.size < 2) {
-                return@readCsvNotNull null
+    operator fun invoke(registry: File): List<StudentRecord> {
+        val students = registry.listFiles()?.map { file ->
+            file.readCsvNotNull { tokenList ->
+                if (tokenList.size < 2) {
+                    return@readCsvNotNull null
+                }
+                val (name, id) = tokenList
+                StudentRecord(
+                    id = id,
+                    name = name,
+                    group = file.nameWithoutExtension
+                )
             }
-            val (name, id) = tokenList
-            StudentRecord(name, id)
-        }
+        }?.flatten()
+        return students ?: error("Student registry not found")
+    }
 }

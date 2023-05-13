@@ -20,7 +20,7 @@ class SheetsService(
         }
     }
 
-    fun updateStudentVisit(group: Group, rowIndex: Int, weekNumber: Int, discipline: Discipline) {
+    fun updateStudentVisit(group: Group, rowIndex: Int, weekNumber: Long, discipline: Discipline) {
         val currentWeek = weeks.firstOrNull { it.number == weekNumber }
             ?: throw IndexOutOfBoundsException("Unknown week number")
         val cell = when (discipline) {
