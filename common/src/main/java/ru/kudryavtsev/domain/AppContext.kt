@@ -12,6 +12,7 @@ sealed class AppContext(
     }
 
     val dbPath: String = "$volumePath$DB_NAME"
+    val studentRegistry = File("$volumePath$STUDENTS_REGISTRY")
     val token: String = secretProperties[tokenName] as String
 
     private class DevelopContext(tokenName: String) : AppContext(
@@ -28,6 +29,7 @@ sealed class AppContext(
         private const val DEFAULT_PATH = "/data/"
         private const val DOCKER_ENV = "/.dockerenv"
         private const val DB_NAME = "data.db"
+        private const val STUDENTS_REGISTRY = "groups"
         private const val FILE_NAME = "secret.properties"
 
         private val projectDir by lazy { System.getProperty("user.dir") }

@@ -4,21 +4,20 @@ import org.jetbrains.exposed.dao.UUIDEntity
 import org.jetbrains.exposed.dao.UUIDEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.UUIDTable
-import ru.kudryavtsev.datasource.local.model.Group
-import java.util.UUID
+import java.util.*
 
 object Students : UUIDTable("students") {
-    val userId = long("telegram_id").uniqueIndex()
+    val telegramId = long("telegram_id").uniqueIndex()
     val chatId = long("chat_id").uniqueIndex()
     val name = varchar("name", 50)
-    val group = enumeration<Group>("group")
+    val group = varchar("group", 50)
 }
 
 class StudentEntity(id: EntityID<UUID>) : UUIDEntity(id) {
     companion object : UUIDEntityClass<StudentEntity>(Students)
 
-    var userId: Long by Students.userId
+    var telegramId: Long by Students.telegramId
     var chatId: Long by Students.chatId
     var name: String by Students.name
-    var group: Group by Students.group
+    var group: String by Students.group
 }

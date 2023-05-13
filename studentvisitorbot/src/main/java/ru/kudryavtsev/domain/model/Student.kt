@@ -7,5 +7,5 @@ data class Student(
     val userId: Long,
     val chatId: Long,
     val name: String,
-    val group: Group
+    val group: String
 )

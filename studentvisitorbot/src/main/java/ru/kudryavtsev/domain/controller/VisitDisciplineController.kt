@@ -1,14 +1,14 @@
 package ru.kudryavtsev.domain.controller
 
 import com.qoollo.logger.logw
+import ru.kudryavtsev.domain.interactor.RegisterVisitInteractor
 import ru.kudryavtsev.domain.model.BaseUserState
 import ru.kudryavtsev.domain.model.Discipline
 import ru.kudryavtsev.domain.model.Message
 import ru.kudryavtsev.domain.model.UserState
 import ru.kudryavtsev.domain.model.Subject
 import ru.kudryavtsev.domain.model.Visit
-import ru.kudryavtsev.domain.usecase.GetStudentUseCase
-import ru.kudryavtsev.domain.usecase.RegisterVisitUseCase
+import ru.kudryavtsev.domain.usecase.GetStudentByTelegramIdUseCase
 import ru.kudryavtsev.domain.usecase.SendMessageUseCase
 import ru.kudryavtsev.domain.usecase.UpdateUserStateUseCase
 import ru.kudryavtsev.domain.util.answerParser
@@ -16,32 +16,79 @@ import ru.kudryavtsev.domain.util.answerParser
 class VisitDisciplineController(
     private val updateStudentState: UpdateUserStateUseCase,
     private val sendMessage: SendMessageUseCase,
-    private val getStudent: GetStudentUseCase,
-    private val registerVisit: RegisterVisitUseCase,
+    private val getStudent: GetStudentByTelegramIdUseCase,
+    private val registerVisit: RegisterVisitInteractor,
 ) {
-    fun visitOp(message: Message) {
-        updateStudentState[message.userInfo.userId] = UserState.AddingVisit(Discipline.Op)
-        sendMessage(message.copy(text = REGISTER_VISIT_INTRO))
-    }
-
-    fun visitOop(message: Message) {
-        updateStudentState[message.userInfo.userId] = UserState.AddingVisit(Discipline.Oop)
-        sendMessage(message.copy(text = REGISTER_VISIT_INTRO))
-    }
-
-    fun process(message: Message, discipline: Discipline) {
-        when (discipline) {
-            Discipline.Oop -> processOpVisit(message)
-            Discipline.Op -> processOopVisit(message)
+    fun visitOpLecture(message: Message) {
+        visitDiscipline(message, Discipline.OpLecture) {
+            updateStudentState[message.userInfo.userId] = UserState.AddingVisit(Discipline.OpLecture)
         }
     }
 
-    private fun processOpVisit(message: Message) {
-        processVisit(message, Subject.OP)
+    fun visitOpLab(message: Message) {
+        visitDiscipline(message, Discipline.OpLab) {
+            updateStudentState[message.userInfo.userId] = UserState.AddingVisit(Discipline.OpLab)
+        }
     }
 
-    private fun processOopVisit(message: Message) {
-        processVisit(message, Subject.OOP)
+    fun visitOopLecture(message: Message) {
+        visitDiscipline(message, Discipline.OopLecture) {
+            updateStudentState[message.userInfo.userId] = UserState.AddingVisit(Discipline.OopLecture)
+        }
+    }
+
+    fun visitOopLab(message: Message) {
+        visitDiscipline(message, Discipline.OopLab) {
+            updateStudentState[message.userInfo.userId] = UserState.AddingVisit(Discipline.OopLab)
+        }
+    }
+
+    fun process(message: Message, discipline: Discipline) {
+        if(isCancellationMessage(message)) {
+            processCancellation(message)
+            return
+        }
+        when (discipline) {
+            Discipline.OpLecture -> processOpLectureVisit(message)
+            Discipline.OpLab -> processOpLabVisit(message)
+            Discipline.OopLecture -> processOopLectureVisit(message)
+            Discipline.OopLab -> processOopLabVisit(message)
+        }
+    }
+
+    private fun isCancellationMessage(message: Message): Boolean =
+        message.text?.equals(CANCEL_COMMAND) ?: false
+
+    private fun processCancellation(message: Message) {
+        sendMessage(
+            message.copy(
+                replyId = message.messageId,
+                text = REQUEST_CANCELED
+            )
+        )
+        updateStudentState[message.userInfo.userId] = BaseUserState.Registered
+    }
+
+    private fun visitDiscipline(message: Message, discipline: Discipline, block: () -> Unit) {
+        block()
+        val textMessage = String.format(REGISTER_VISIT_INTRO, discipline.description)
+        sendMessage(message.copy(text = textMessage))
+    }
+
+    private fun processOpLectureVisit(message: Message) {
+        processVisit(message, Subject.OP_LECTURE)
+    }
+
+    private fun processOpLabVisit(message: Message) {
+        processVisit(message, Subject.OP_LAB)
+    }
+
+    private fun processOopLectureVisit(message: Message) {
+        processVisit(message, Subject.OOP_LECTURE)
+    }
+
+    private fun processOopLabVisit(message: Message) {
+        processVisit(message, Subject.OOP_LAB)
     }
 
     private fun processVisit(message: Message, subject: Subject) {
@@ -63,26 +110,42 @@ class VisitDisciplineController(
             numberOnImage = visitPayload.number,
             subject = subject
         )
-        registerVisit(visit)
-        sendMessage(
-            message.copy(
-                replyId = message.messageId,
-                text = VISIT_REGISTER_SUCCEED
+        try {
+            registerVisit(visit)
+            sendMessage(
+                message.copy(
+                    replyId = message.messageId,
+                    text = VISIT_REGISTER_SUCCEED
+                )
             )
-        )
-        updateStudentState[message.userInfo.userId] = BaseUserState.Registered
+            updateStudentState[message.userInfo.userId] = BaseUserState.Registered
+        } catch (e: RuntimeException) {
+            sendMessage(
+                message.copy(
+                    replyId = message.messageId,
+                    text = VISIT_REGISTER_ERROR
+                )
+            )
+        }
     }
 
 
     companion object {
+        private const val CANCEL_COMMAND = "Отмена"
+        private const val REQUEST_CANCELED = "Запрос на регистрацию посещения отменён"
+
         private const val REGISTER_VISIT_INTRO =
-            "Если хочешь отметиться на паре, пришли мне следующую информацию: " +
+            "%s\n\n" +
+                    "Если хочешь отметиться на паре, пришли мне следующую информацию: " +
                     "дата посещения, номер на фото (каждый пункт с новой строки).\n\n" +
                     "*Например:*\n" +
-                    "26.02.2022\n" +
-                    "43"
-
+                    "26.02.2023\n" +
+                    "43\n\n" +
+                    "Для отмены действия, отправь в чат сообщение с текстом \"$CANCEL_COMMAND\""
         private const val VISIT_REGISTER_SUCCEED = "Посещение получено!"
+        private const val VISIT_REGISTER_ERROR =
+            "Ошибка регистрации посещения. Проверьте правильность введённых данных!"
+
         private const val UNKNOWN_USER = "Увы, но кажется мы не знакомы \uD83D\uDE1E"
     }
 }

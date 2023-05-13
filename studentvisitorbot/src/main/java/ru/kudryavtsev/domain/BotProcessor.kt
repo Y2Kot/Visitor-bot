@@ -4,8 +4,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.onEach
 import ru.kudryavtsev.domain.command.BaseBotCommand
 import ru.kudryavtsev.domain.controller.HelpController
+import ru.kudryavtsev.domain.controller.IRegisterController
 import ru.kudryavtsev.domain.controller.InfoController
-import ru.kudryavtsev.domain.controller.RegisterController
 import ru.kudryavtsev.domain.controller.UndefinedController
 import ru.kudryavtsev.domain.controller.UploadImageController
 import ru.kudryavtsev.domain.controller.VisitDisciplineController
@@ -20,7 +20,7 @@ class BotProcessor(
     private val getOrInitUserState: GetOrInitUserStateUseCase,
     receiveMessages: ReceiveMessagesUseCase,
     private val helpController: HelpController,
-    private val registerController: RegisterController,
+    private val registerController: IRegisterController,
     private val infoController: InfoController,
     private val undefinedController: UndefinedController,
     private val uploadImageController: UploadImageController,
@@ -39,8 +39,10 @@ class BotProcessor(
         val messageText = message.text ?: return
         when (BotCommand.defineCommand(messageText)) {
             BaseBotCommand.Start -> registerController.registerUser(message)
-            BotCommand.VisitOop -> visitDisciplineController.visitOp(message)
-            BotCommand.VisitOp -> visitDisciplineController.visitOop(message)
+            BotCommand.VisitOopLecture -> visitDisciplineController.visitOopLecture(message)
+            BotCommand.VisitOopLab -> visitDisciplineController.visitOopLab(message)
+            BotCommand.VisitOpLecture -> visitDisciplineController.visitOpLecture(message)
+            BotCommand.VisitOpLab -> visitDisciplineController.visitOpLab(message)
             BotCommand.Help -> helpController.sendHelpMessage(message)
             BotCommand.Info -> infoController.sendInfoMessage(message)
             BotCommand.UploadImage -> uploadImageController.uploadImage(message)
