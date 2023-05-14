@@ -5,16 +5,14 @@ import ru.kudryavtsev.domain.interactor.RegisterVisitInteractor
 import ru.kudryavtsev.domain.model.BaseUserState
 import ru.kudryavtsev.domain.model.Discipline
 import ru.kudryavtsev.domain.model.Message
-import ru.kudryavtsev.domain.model.UserState
 import ru.kudryavtsev.domain.model.Subject
+import ru.kudryavtsev.domain.model.UserState
 import ru.kudryavtsev.domain.model.Visit
 import ru.kudryavtsev.domain.usecase.GetStudentByTelegramIdUseCase
 import ru.kudryavtsev.domain.usecase.GetVisitsByDateUseCase
 import ru.kudryavtsev.domain.usecase.SendMessageUseCase
 import ru.kudryavtsev.domain.usecase.UpdateUserStateUseCase
 import ru.kudryavtsev.domain.util.answerParser
-import java.time.LocalDate
-import java.time.temporal.ChronoField
 
 class VisitDisciplineController(
     private val updateStudentState: UpdateUserStateUseCase,
