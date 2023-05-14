@@ -14,6 +14,7 @@ sealed class AppContext(
     val dbPath: String = "$volumePath$DB_NAME"
     val studentRegistry = File("$volumePath$STUDENTS_REGISTRY")
     val token: String = secretProperties[tokenName] as String
+    val spreadsheetId = secretProperties[GOOGLE_SHEET_KEY] as String
     val tokenDirectory = File("$volumePath$TOKENS_DIRECTORY_PATH")
     val credentialsReader = File("$volumePath$CREDENTIALS_FILE_PATH").reader()
 
@@ -35,6 +36,7 @@ sealed class AppContext(
         private const val FILE_NAME = "secret.properties"
         private const val TOKENS_DIRECTORY_PATH = "tokens"
         private const val CREDENTIALS_FILE_PATH = "credentials.json"
+        private const val GOOGLE_SHEET_KEY = "google-spreadsheet"
 
         private val projectDir by lazy { System.getProperty("user.dir") }
 
