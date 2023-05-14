@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   visitor-bot:
-    image: "y2kot/studentvisitorbot:1.6"
+    image: "y2kot/studentvisitorbot:1.7"
     volumes:
       - ./data:/data
     deploy:

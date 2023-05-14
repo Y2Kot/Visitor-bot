@@ -20,10 +20,10 @@ import java.io.IOException
 
 
 class SheetsApi(
-    private val spreadsheet: Spreadsheet,
     private val context: AppContext
 ) {
     private val httpTransport = GoogleNetHttpTransport.newTrustedTransport()
+    private val spreadsheet = Spreadsheet(context.spreadsheetId)
 
     /**
      * Global instance of the scopes required by this quickstart.
