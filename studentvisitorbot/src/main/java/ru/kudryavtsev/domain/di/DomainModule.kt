@@ -28,6 +28,7 @@ import ru.kudryavtsev.domain.usecase.GetAllStudentsUseCase
 import ru.kudryavtsev.domain.usecase.GetOrInitUserStateUseCase
 import ru.kudryavtsev.domain.usecase.GetStudentByTelegramIdUseCase
 import ru.kudryavtsev.domain.usecase.GetStudentByUserIdUseCase
+import ru.kudryavtsev.domain.usecase.GetVisitsByDateUseCase
 import ru.kudryavtsev.domain.usecase.ReceiveMessagesUseCase
 import ru.kudryavtsev.domain.usecase.RegisterStudentUseCase
 import ru.kudryavtsev.domain.usecase.RegisterVisitUseCase
@@ -61,6 +62,7 @@ val domainModule = module {
     factoryOf(::SendMessageUseCase)
     factoryOf(::UpdateUserStateUseCase)
     factoryOf(::RegisterVisitInteractor)
+    factoryOf(::GetVisitsByDateUseCase)
 
     factoryOf(::HelpController)
     factoryOf(::InfoController)

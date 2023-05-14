@@ -5,10 +5,11 @@ import ru.kudryavtsev.domain.interactor.RegisterVisitInteractor
 import ru.kudryavtsev.domain.model.BaseUserState
 import ru.kudryavtsev.domain.model.Discipline
 import ru.kudryavtsev.domain.model.Message
-import ru.kudryavtsev.domain.model.UserState
 import ru.kudryavtsev.domain.model.Subject
+import ru.kudryavtsev.domain.model.UserState
 import ru.kudryavtsev.domain.model.Visit
 import ru.kudryavtsev.domain.usecase.GetStudentByTelegramIdUseCase
+import ru.kudryavtsev.domain.usecase.GetVisitsByDateUseCase
 import ru.kudryavtsev.domain.usecase.SendMessageUseCase
 import ru.kudryavtsev.domain.usecase.UpdateUserStateUseCase
 import ru.kudryavtsev.domain.util.answerParser
@@ -18,6 +19,7 @@ class VisitDisciplineController(
     private val sendMessage: SendMessageUseCase,
     private val getStudent: GetStudentByTelegramIdUseCase,
     private val registerVisit: RegisterVisitInteractor,
+    private val getVisitsByDate: GetVisitsByDateUseCase,
 ) {
     fun visitOpLecture(message: Message) {
         visitDiscipline(message, Discipline.OpLecture) {
@@ -44,7 +46,7 @@ class VisitDisciplineController(
     }
 
     fun process(message: Message, discipline: Discipline) {
-        if(isCancellationMessage(message)) {
+        if (isCancellationMessage(message)) {
             processCancellation(message)
             return
         }
@@ -104,6 +106,17 @@ class VisitDisciplineController(
             return
         }
 
+        val isAlreadyVisited = getVisitsByDate(visitPayload.date)
+            .any {
+                val isDatesEquals = it.date.compareTo(visitPayload.date) == 0
+                val isDisciplineTheSame = it.subject == subject
+                isDisciplineTheSame && isDatesEquals
+            }
+        if (isAlreadyVisited) {
+            sendMessage(message.copy(text = VISIT_ALREADY_EXIST))
+            return
+        }
+
         val visit = Visit(
             studentId = student.id,
             date = visitPayload.date,
@@ -145,6 +158,9 @@ class VisitDisciplineController(
         private const val VISIT_REGISTER_SUCCEED = "Посещение получено!"
         private const val VISIT_REGISTER_ERROR =
             "Ошибка регистрации посещения. Проверьте правильность введённых данных!"
+        private const val VISIT_ALREADY_EXIST = "Лицо с указанным номером уже зарегистрировано в этот день. " +
+                "Попробуйте ввести верное значение.\n\n" +
+                "Если вы уверены, что это вы, напишите @y2kot"
 
         private const val UNKNOWN_USER = "Увы, но кажется мы не знакомы \uD83D\uDE1E"
     }
