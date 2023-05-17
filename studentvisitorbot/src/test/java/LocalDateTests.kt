@@ -23,6 +23,8 @@ class LocalDateTests {
             14L to LocalDate.of(2023, 5, 9),
             5L to LocalDate.of(2023, 3, 6),
             9L to LocalDate.of(2023, 4, 9),
+            2L to LocalDate.of(2023, 2, 14),
+            3L to LocalDate.of(2023, 2, 21),
         )
 
         validationMap.forEach { (week, date) ->
