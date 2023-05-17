@@ -1,7 +1,6 @@
 package ru.kudryavtsev.domain.controller
 
 import com.qoollo.logger.loge
-import com.qoollo.logger.logw
 import ru.kudryavtsev.domain.interactor.RegisterVisitInteractor
 import ru.kudryavtsev.domain.model.BaseUserState
 import ru.kudryavtsev.domain.model.Discipline
