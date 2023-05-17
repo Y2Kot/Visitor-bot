@@ -112,9 +112,9 @@ class VisitDisciplineController(
 
         val isAlreadyVisited = getVisitsByDate(visitPayload.date)
             .any {
-                val isDatesEquals = it.date.compareTo(visitPayload.date) == 0
                 val isDisciplineTheSame = it.subject == subject
-                isDisciplineTheSame && isDatesEquals
+                val isNumberExist = visitPayload.number == it.numberOnImage
+                isDisciplineTheSame && isNumberExist
             }
         if (isAlreadyVisited) {
             sendMessage(message.copy(text = VISIT_ALREADY_EXIST))
