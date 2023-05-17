@@ -1,5 +1,6 @@
 package ru.kudryavtsev.domain.controller
 
+import com.qoollo.logger.loge
 import com.qoollo.logger.logw
 import ru.kudryavtsev.domain.interactor.RegisterVisitInteractor
 import ru.kudryavtsev.domain.model.BaseUserState
@@ -101,7 +102,10 @@ class VisitDisciplineController(
         val visitPayload = try {
             message.text.answerParser()
         } catch (e: RuntimeException) {
-            logw(throwable = e) { "Visit payload parsing failed with message " }
+            loge(throwable = e) {
+                "Visit payload parsing failed. " +
+                        "User id: ${message.userInfo.userId}, text message was: ${message.text}"
+            }
             sendMessage(message.copy(text = e.localizedMessage))
             return
         }
@@ -133,6 +137,10 @@ class VisitDisciplineController(
             )
             updateStudentState[message.userInfo.userId] = BaseUserState.Registered
         } catch (e: RuntimeException) {
+            loge(throwable = e) {
+                "Registration failed, " +
+                        "user: ${message.userInfo.userId}, subject: ${subject.name}, text message: ${message.text}"
+            }
             sendMessage(
                 message.copy(
                     replyId = message.messageId,
