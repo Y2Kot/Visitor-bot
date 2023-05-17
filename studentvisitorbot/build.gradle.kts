@@ -14,7 +14,7 @@ plugins {
 val localProperties: Properties by rootProject.extra
 
 group = "ru.kudryavtsev"
-version = "1.8"
+version = "1.8.1"
 
 application {
     mainClass.set("$group.BotAppKt")
