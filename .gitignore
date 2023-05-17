@@ -7,3 +7,4 @@ local.properties
 secret.properties
 /data/tokens
 data.db
+remote-databases
