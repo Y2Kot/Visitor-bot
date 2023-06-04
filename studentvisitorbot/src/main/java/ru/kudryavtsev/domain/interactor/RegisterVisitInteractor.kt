@@ -17,7 +17,6 @@ class RegisterVisitInteractor(
     private val sheet: SheetUseCase
 ) {
     operator fun invoke(visit: Visit) {
-        registerVisitUseCase(visit)
         val student = getStudentByUserId[visit.studentId] ?: throw UserNotFoundException
         val studentDescription = StudentDescription(
             name = student.name,
@@ -28,6 +27,7 @@ class RegisterVisitInteractor(
             weekNumber = visit.date.currentStudyingWeek(),
             discipline = visit.subject.toDiscipline()
         )
+        registerVisitUseCase(visit)
     }
 
     private fun Subject.toDiscipline(): Discipline = when(this) {
