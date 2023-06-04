@@ -27,7 +27,7 @@ class NewRegisterController(
     context: AppContext,
 ) : IRegisterController {
     private val studentsRegistry: List<StudentRecord> = csvReader(context.studentRegistry)
-    private val idRegex = "^2[0-9][А-Я][0-z]{3}$".toRegex()
+    private val idRegex = "^2[0-9][А-Я][0-9]{3}$".toRegex()
     override fun registerUser(message: Message) {
         val student = getStudent[message.userInfo.userId]
         if (student != null) {
