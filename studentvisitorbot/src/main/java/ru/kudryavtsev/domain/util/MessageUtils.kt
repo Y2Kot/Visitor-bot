@@ -6,19 +6,23 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 fun String?.answerParser(): VisitPayload {
-    val studentAnswer = this ?: throw VisitParserException.InvalidInputData
-    val (dateStr, number) = studentAnswer.split("\n")
-        .takeIf { it.size == 2 } ?: throw VisitParserException.InvalidInputData
+    val studentAnswer = this ?: throw VisitParserException.NullInputData
+
+    val (dateStr, number) = try {
+        studentAnswer.trim().split("\n")
+    } catch (e: RuntimeException) {
+        throw VisitParserException.InvalidInputData
+    }
 
     val date = try {
         val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
-        LocalDate.parse(dateStr, formatter)
+        LocalDate.parse(dateStr.trim(), formatter)
     } catch (e: RuntimeException) {
         throw VisitParserException.InvalidDateFormat
     }
 
     val numberValue = try {
-        number.toInt()
+        number.trim().toInt()
     } catch (e: RuntimeException) {
         throw VisitParserException.InvalidPhotoNumber
     }
